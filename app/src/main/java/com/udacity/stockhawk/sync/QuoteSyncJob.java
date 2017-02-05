@@ -8,7 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
+import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 
@@ -27,6 +31,7 @@ import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.histquotes.Interval;
 import yahoofinance.quotes.stock.StockQuote;
+
 
 public final class QuoteSyncJob {
 
@@ -55,22 +60,28 @@ public final class QuoteSyncJob {
             stockCopy.addAll(stockPref);
             String[] stockArray = stockPref.toArray(new String[stockPref.size()]);
 
-            Timber.d(stockCopy.toString());
+            Timber.e("stockCopy: " + stockCopy.toString());
 
             if (stockArray.length == 0) {
                 return;
             }
 
             Map<String, Stock> quotes = YahooFinance.get(stockArray);
+            Timber.d("quotes : " + quotes.toString());
+
+            if (quotes.isEmpty())
+                return;
+
             Iterator<String> iterator = stockCopy.iterator();
-
-            Timber.d(quotes.toString());
-
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
             while (iterator.hasNext()) {
                 String symbol = iterator.next();
-
+                if (isInvalidStock(quotes, symbol)) {
+                    PrefUtils.removeStock(context, symbol);
+                    showRemovingStockMessage(context, symbol);
+                    continue;
+                }
 
                 Stock stock = quotes.get(symbol);
                 StockQuote quote = stock.getQuote();
@@ -118,6 +129,27 @@ public final class QuoteSyncJob {
         }
     }
 
+    private static void showRemovingStockMessage(final Context context, final String symbol) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, context.getString(R.string.invalid_stock_symbol, symbol), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private static boolean isInvalidStock(Map<String, Stock> quotes, String symbol) {
+        return (symbol + ": null").equals(quotes.get(symbol).toString());
+    }
+
+    public static synchronized void initialize(final Context context) {
+
+        schedulePeriodic(context);
+        syncImmediately(context);
+
+    }
+
+
     private static void schedulePeriodic(Context context) {
         Timber.d("Scheduling a periodic task");
 
@@ -131,16 +163,7 @@ public final class QuoteSyncJob {
 
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
         scheduler.schedule(builder.build());
-    }
-
-
-    public static synchronized void initialize(final Context context) {
-
-        schedulePeriodic(context);
-        syncImmediately(context);
-
     }
 
     public static synchronized void syncImmediately(Context context) {
@@ -161,12 +184,7 @@ public final class QuoteSyncJob {
 
 
             JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
             scheduler.schedule(builder.build());
-
-
         }
     }
-
-
 }

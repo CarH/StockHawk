@@ -112,8 +112,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    public void button(@SuppressWarnings("UnusedParameters") View view) {
-        new AddStockDialog().show(getFragmentManager(), "StockDialogFragment");
+    public void displayAddNewStockDialog(@SuppressWarnings("UnusedParameters") View view) {
+        if (networkUp())
+            new AddStockDialog().show(getFragmentManager(), "StockDialogFragment");
+        else {
+            Toast.makeText(this, R.string.toask_no_connectivity_to_open_add_stock_dialog, Toast.LENGTH_LONG).show();
+        }
     }
 
     void addStock(String symbol) {
@@ -122,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             if (networkUp()) {
                 swipeRefreshLayout.setRefreshing(true);
             } else {
+                // TODO : this code is obsolete now that is not possible to add a stock when there is no connectivity
                 String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }

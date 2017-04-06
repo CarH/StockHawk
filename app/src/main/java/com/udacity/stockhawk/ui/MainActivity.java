@@ -1,6 +1,7 @@
 package com.udacity.stockhawk.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -19,10 +20,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
 import com.udacity.stockhawk.R;
 import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,8 +49,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private StockAdapter adapter;
 
     @Override
-    public void onClick(String symbol) {
-        Timber.d("Symbol clicked: %s", symbol);
+    public void onClick(int selectedPosition, ArrayList<String> symbols, ArrayList<String> companyNames) {
+        Timber.d("Selected position clicked: %s", selectedPosition);
+        Intent intent = new Intent(this, StockChartActivity.class);
+        intent.putExtra("selected_position", selectedPosition);
+        intent.putStringArrayListExtra("symbols", symbols);
+        intent.putStringArrayListExtra("company_names", companyNames);
+        startActivity(intent);
     }
 
     @Override
@@ -81,7 +90,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }).attachToRecyclerView(stockRecyclerView);
 
-
+        // TODO : ___DEBUG_ONLY___
+        Stetho.initialize(Stetho.newInitializerBuilder(this)
+                .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+                .build());
     }
 
     private boolean networkUp() {
@@ -125,11 +137,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             if (networkUp()) {
                 swipeRefreshLayout.setRefreshing(true);
-            } else {
-                // TODO : this code is obsolete now that is not possible to add a stock when there is no connectivity
-                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
+            // TODO : REMOVE
+            Timber.d(String.format("ADDING SYMBOL %s onto stock list", symbol));
 
             PrefUtils.addStock(this, symbol);
             QuoteSyncJob.syncImmediately(this);

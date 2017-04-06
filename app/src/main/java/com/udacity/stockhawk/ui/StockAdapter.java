@@ -15,6 +15,7 @@ import com.udacity.stockhawk.data.PrefUtils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -48,9 +49,34 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
     }
 
     String getSymbolAtPosition(int position) {
-
         cursor.moveToPosition(position);
         return cursor.getString(Contract.Quote.POSITION_SYMBOL);
+    }
+
+    private ArrayList<String> getSymbols() {
+        ArrayList<String> symbols = new ArrayList<>();
+        if (cursor == null)
+            return null;
+
+        cursor.moveToFirst();
+        do {
+            symbols.add(cursor.getString(Contract.Quote.POSITION_SYMBOL));
+        } while (cursor.moveToNext());
+
+        return symbols;
+    }
+
+    private ArrayList<String> getCompanyNames() {
+        ArrayList<String> companies = new ArrayList<>();
+        if (cursor == null)
+            return null;
+
+        cursor.moveToFirst();
+        do {
+            companies.add(cursor.getString(Contract.Quote.POSITION_COMPANY_NAME));
+        } while (cursor.moveToNext());
+
+        return companies;
     }
 
     @Override
@@ -104,7 +130,7 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
 
 
     interface StockAdapterOnClickHandler {
-        void onClick(String symbol);
+        void onClick(int symbol, ArrayList<String> symbols, ArrayList<String> companyNames);
     }
 
     class StockViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -126,13 +152,7 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
 
         @Override
         public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            cursor.moveToPosition(adapterPosition);
-            int symbolColumn = cursor.getColumnIndex(Contract.Quote.COLUMN_SYMBOL);
-            clickHandler.onClick(cursor.getString(symbolColumn));
-
+            clickHandler.onClick(getAdapterPosition(), getSymbols(), getCompanyNames());
         }
-
-
     }
 }

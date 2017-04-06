@@ -1,9 +1,18 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/colorPrimary</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:actionBarStyle">@style/AppTheme.ActionBarStyle</item>
+    </style>
+    
+    <style name="AppTheme.ActionBarStyle">
+        <item name="android:titleTextStyle">@style/AppTheme.ActionBarStyle.TitleTextStyle</item>
+    </style>
+
+    <style name="AppTheme.ActionBarStyle.TitleTextStyle">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="PercentChangeTextStyle">
@@ -20,4 +29,8 @@
         <item name="android:textSize">25sp</item>
         <item name="android:textAllCaps">true</item>
     </style>
+
+
+    <string name="stock_enter_transition_name">stock_enter_transition</string>
+    <string name="stock_return_transition_name">stock_return_transition</string>
 </resources>

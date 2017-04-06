@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import timber.log.Timber;
+
 public final class PrefUtils {
 
     private PrefUtils() {
@@ -20,6 +22,9 @@ public final class PrefUtils {
         String initializedKey = context.getString(R.string.pref_stocks_initialized_key);
         String[] defaultStocksList = context.getResources().getStringArray(R.array.default_stocks);
 
+        // TODO : REMOVE
+        Timber.e("defaultStocksList: " + Arrays.asList(defaultStocksList).toString());
+
         HashSet<String> defaultStocks = new HashSet<>(Arrays.asList(defaultStocksList));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -27,6 +32,7 @@ public final class PrefUtils {
         boolean initialized = prefs.getBoolean(initializedKey, false);
 
         if (!initialized) {
+            Timber.e("initialized key = False. Initializing with default values: " + defaultStocks.toString());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(initializedKey, true);
             editor.putStringSet(stocksKey, defaultStocks);

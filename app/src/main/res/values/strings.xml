@@ -35,5 +35,6 @@
     <string name="toask_no_connectivity_to_open_add_stock_dialog">It\'s not possible to add a stock because there is no connectivity.</string>
     <string name="invalid_stock_symbol">%s is an invalid symbol.</string>
     <string name="title_activity_stock_chart">StockChart</string>
+    <string name="pref_display_mode_str">Preferred display mode</string>
 
 </resources>

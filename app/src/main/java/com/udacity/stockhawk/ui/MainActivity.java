@@ -3,6 +3,7 @@ package com.udacity.stockhawk.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @SuppressWarnings("WeakerAccess")
     @BindView(R.id.error)
     TextView error;
+    @BindView(R.id.main_toolbar)
+    Toolbar toolbar;
     private StockAdapter adapter;
 
     @Override
@@ -65,9 +69,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        setSupportActionBar(toolbar);
+
         adapter = new StockAdapter(this, this);
         stockRecyclerView.setAdapter(adapter);
         stockRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        stockRecyclerView.addItemDecoration(new VerticalSpaceItemDecoration(48));
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setRefreshing(true);
@@ -94,6 +101,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Stetho.initialize(Stetho.newInitializerBuilder(this)
                 .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
                 .build());
+    }
+
+    public class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration {
+
+        private final int verticalSpaceHeight;
+
+        public VerticalSpaceItemDecoration(int verticalSpaceHeight) {
+            this.verticalSpaceHeight = verticalSpaceHeight;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
+                                   RecyclerView.State state) {
+            outRect.bottom = verticalSpaceHeight;
+        }
     }
 
     private boolean networkUp() {
